@@ -792,6 +792,7 @@ func nativeVoiceTarget(query string) bool {
 	return false
 }
 func (s *Server) voiceLoop(ctx context.Context) {
+	voiceCommands := voiceCommandsEnabled()
 	last := ""
 	lastTime := time.Time{}
 	var routedRequests, takenOver []string
@@ -842,6 +843,9 @@ func (s *Server) voiceLoop(ctx context.Context) {
 						p.send("volume 0.2")
 					}
 				}
+			}
+			if !voiceCommands {
+				continue
 			}
 			q := normalize(ev.Text)
 			a, _, ok := s.voiceAction(q)

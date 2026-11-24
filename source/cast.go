@@ -82,6 +82,10 @@ type castReceiver struct {
 
 func castEnabled() bool { return os.Getenv("YTM_ALICE_CAST") != "0" }
 
+// voiceCommandsEnabled is false when another program (a voice bridge) owns
+// phrase handling; ytm-alice then only follows Alice state for ducking.
+func voiceCommandsEnabled() bool { return os.Getenv("YTM_ALICE_VOICE") != "0" }
+
 func randHex(n int) string {
 	b := make([]byte, n)
 	rand.Read(b)

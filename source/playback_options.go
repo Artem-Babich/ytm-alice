@@ -127,6 +127,13 @@ func (s *Server) finishQueue(g uint64, id string) {
 	s.mu.Unlock()
 }
 
+// lateFailureText is spoken when the queue fails after playback was accepted.
+// The panel is not reachable for the listener, so the text does not point there.
+const lateFailureText = "Не удалось включить музыку на YouTube."
+
+// failureSpeech is replaced in tests.
+var failureSpeech = speak
+
 func (s *Server) notifyFailure(g uint64) {
 	go func() {
 		s.speechMu.Lock()
@@ -135,7 +142,7 @@ func (s *Server) notifyFailure(g uint64) {
 		current := s.generation == g && s.state.Status == "error" && !s.closing && s.settingsLocked().AnnounceErrors
 		s.mu.Unlock()
 		if current {
-			_ = speak("Не получилось включить музыку. Подробности доступны в панели.")
+			_ = failureSpeech(lateFailureText)
 		}
 	}()
 }
