@@ -261,6 +261,9 @@ func (s *Server) command(ctx context.Context, r request) response {
 			if r.Title != "" || r.Spoken != "" {
 				log.Print(takeoverLookupLog(r, step, tracks, e))
 			}
+			if e == nil && r.Artist != "" && r.Title == "" {
+				tracks = onlyArtist(r.Artist, tracks)
+			}
 		}
 		s.mu.Lock()
 		if s.generation != g || s.lookupGeneration != lookup {

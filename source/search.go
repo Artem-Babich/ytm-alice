@@ -133,6 +133,38 @@ func (c *Catalog) playLookup(ctx context.Context, query string) ([]Track, error)
 	return nil, errNoTracks
 }
 
+// onlyArtist keeps the songs credited to artist when a request names only
+// the artist, so a song merely titled like the band does not join its queue.
+// When no song is credited to the artist (another spelling in the catalog),
+// the tracks are kept as they are.
+func onlyArtist(artist string, tracks []Track) []Track {
+	want := searchWords(artist)
+	if len(want) == 0 {
+		return tracks
+	}
+	kept := []Track{}
+	for _, track := range tracks {
+		credited := map[string]bool{}
+		for _, word := range searchWords(track.Artists) {
+			credited[word] = true
+		}
+		all := true
+		for _, word := range want {
+			if !credited[word] {
+				all = false
+				break
+			}
+		}
+		if all {
+			kept = append(kept, track)
+		}
+	}
+	if len(kept) == 0 {
+		return tracks
+	}
+	return kept
+}
+
 // titleLookup finds a catalog song by its exact title when "artist title"
 // matched nothing: catalogs disagree on artists (Yandex lists «Bochka, Bass,
 // Kolbaser» under Паша Техник, YouTube Music under XS Project). The same
